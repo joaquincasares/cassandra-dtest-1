@@ -42,13 +42,14 @@ then
 
         # run vnode and non-vnode dtests
     cd ${WORKDIR}/cassandra-dtest
-    su cassandra \
-        time \
+    su cassandra -c \
+        "time \
         PRINT_DEBUG=true \
         nosetests -x -s -vvvv --with-flaky \
-        ${SPECIFIC_DTEST}
-    time ./run_dtests.py \
+        ${SPECIFIC_DTEST}"
+    su cassandra -c \
+        "time ./run_dtests.py \
         --vnodes false \
-        --nose-options "-x -s -v" \
-        ${SPECIFIC_DTEST}
+        --nose-options '-x -s -v' \
+        ${SPECIFIC_DTEST}"
 fi
