@@ -37,10 +37,14 @@ time ant \
 
 if [[ ! ${ONLY_UNIT_TESTS} ]]
 then
+    # change to non-root user
+    su cassandra
+    chown -R cassandra:cassandra ${WORKDIR}
+
     # run vnode and non-vnode dtests
     cd ${WORKDIR}/cassandra-dtest
-    PRINT_DEBUG=true
-    time nosetests -x -s -v --with-flaky \
+    export PRINT_DEBUG=true
+    time nosetests -x -s -vvvv --with-flaky \
         ${SPECIFIC_DTEST}
     time ./run_dtests.py \
         --vnodes false \
