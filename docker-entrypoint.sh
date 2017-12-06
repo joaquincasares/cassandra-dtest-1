@@ -32,7 +32,8 @@ time ant \
     ${RUN_UNIT_TESTS} \
     || true \
     && cp /usr/src/cstar/cassandra/build/test/TESTS-TestSuites.xml \
-          ../results/TESTS-TestSuites-$(date +%s).xml
+          ../results/TESTS-TestSuites-$(date +%s).xml \
+    || true
 
 if [[ ! ${ONLY_UNIT_TESTS} ]]
 then
