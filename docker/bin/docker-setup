@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# find the aws instance IP and set the $SSH_CONN,
+# then wait for AWS instance to be up
+set -o allexport
+source ./bin/instance-wait-for
+set +o allexport
+
+# prevent broken ssh pipes
+${SSH_CONN} "echo 'ClientAliveInterval 3' | sudo tee -a /etc/ssh/sshd_config"
+${SSH_CONN} "echo 'ClientAliveCountMax 200' | sudo tee -a /etc/ssh/sshd_config"
+${SSH_CONN} "sudo service ssh restart"
+
+# https://docs.docker.com/engine/installation/linux/ubuntu
+# install Docker pre-reqs
+${SSH_CONN} "sudo apt-get update"
+${SSH_CONN} "sudo apt-get install -y \
+    apt-transport-https \
+    bash-completion \
+    ca-certificates \
+    curl \
+    software-properties-common"
+${SSH_CONN} "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
+
+# add Docker repo
+${SSH_CONN} "sudo add-apt-repository \
+   \"deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   \$(lsb_release -cs) \
+   stable\" "
+
+# install Docker
+${SSH_CONN} "sudo apt-get update"
+${SSH_CONN} "sudo apt-get install -y docker-ce"
+
+# https://docs.docker.com/engine/installation/linux/linux-postinstall
+# add current user to docker group, to avoid having to use sudo
+${SSH_CONN} "sudo usermod -aG docker ${AMI_USER}"
+
+# ensure Docker auto-starts
+${SSH_CONN} "sudo systemctl enable docker"
+
+# install Docker-Compose
+${SSH_CONN} "curl -L \
+    https://github.com/docker/compose/releases/download/1.13.0/docker-compose-\`uname -s\`-\`uname -m\` \
+    | sudo tee /usr/local/bin/docker-compose > /dev/null \
+    && sudo chmod +x /usr/local/bin/docker-compose"
+
+# install Docker Compose bash completions
+${SSH_CONN} "curl -L \
+    https://raw.githubusercontent.com/docker/compose/\$(docker-compose version --short)/contrib/completion/bash/docker-compose \
+    | sudo tee /etc/bash_completion.d/docker-compose > /dev/null"
+
+# install ctop, to monitor Docker containers
+# http://ctop.sh
+${SSH_CONN} "sudo wget \
+    https://github.com/bcicen/ctop/releases/download/v0.5/ctop-0.5-linux-amd64 \
+    -O /usr/local/bin/ctop"
+${SSH_CONN} "sudo chmod +x /usr/local/bin/ctop"

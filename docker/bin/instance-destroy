@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -ex
+# find the aws instance IP and set the $SSH_CONN,
+# then wait for AWS instance to be up
+set -o allexport
+source ./bin/instance-wait-for
+set +o allexport
+
+${SSH_CONN} "awk '{printf \"THIS MACHINE HAS BEEN RUNNING FOR: %s HOURS\\n\\n\",\$0/60/60;}' /proc/uptime"
+${SSH_CONN} "awk '{printf \"FOR AN r4.16xlarge, THE COST WAS ABOUT: \$%s\\n\\n\",\$0/60/60 * 4.256 USD;}' /proc/uptime"
+
+# delete keypair
+aws ec2 delete-key-pair \
+    --key-name ${KEYPAIR}
+chmod 600 ${KEYPAIR_PATH}
+rm ${KEYPAIR_PATH}
+
+# find all instances that share the $INSTANCE_NAME
+INSTANCE_IDS=$(aws ec2 describe-instances \
+                  --filters Name=tag:Name,Values="${INSTANCE_NAME}" \
+                      | jq '.Reservations[].Instances[].InstanceId' \
+                      | sed 's/"//g')
+
+# terminate all related instances
+if [ -n "${INSTANCE_IDS}" ]; then
+    aws ec2 terminate-instances \
+        --instance-ids ${INSTANCE_IDS}
+fi
+
+# delete security group
+while :
+do
+    aws ec2 delete-security-group \
+        --group-name ${SECURITY_GROUP_NAME} \
+    && break \
+    || echo "Waiting for instance to terminate..." \
+    && sleep 10
+done
+
+echo "All AWS instances tagged with the 'Name' '${INSTANCE_NAME}' have been terminated."

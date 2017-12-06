@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# already present in ~/.bashrc, but needed in order to preload ~/bash.env from
+# the docker-compose.yml `command` argument
+set -o allexport
+source ${WORKDIR}/bash.env
+set +o allexport
+
+# after all bash.env variables have been exported, launch the intended script
+${@}

@@ -1,0 +1,48 @@
+version: '2.1'
+
+services:
+  aws-setup:
+    build: docker
+    command: ./bin/launcher ./bin/setup
+    env_file:
+      - docker/ec2.env
+      - docker/secrets.env
+    volumes:
+      - ./docker/bin:/usr/src/app/bin
+      - ./docker/keys:/usr/src/app/keys
+
+  aws-test:
+    build: docker
+    command: ./bin/launcher ./bin/dtest-setup
+    env_file:
+      - docker/ec2.env
+      - docker/secrets.env
+    volumes:
+      - ./docker/bin:/usr/src/app/bin
+      - ./docker/keys:/usr/src/app/keys
+
+  aws-destroy:
+    build: docker
+    command: ./bin/launcher ./bin/instance-destroy
+    env_file:
+      - docker/ec2.env
+      - docker/secrets.env
+    volumes:
+      - ./docker/bin:/usr/src/app/bin
+      - ./docker/keys:/usr/src/app/keys
+
+  dtests:
+    build: .
+    volumes:
+      - .:/usr/src/cstar/cassandra-dtest
+      - .m2:/home/cassandra/.m2
+      - ./results:/usr/src/cstar/results
+
+  unittests:
+    build: .
+    environment:
+      - ONLY_UNIT_TESTS=true
+    volumes:
+      - .:/usr/src/cstar/cassandra-dtest
+      - .m2:/home/cassandra/.m2
+      - ./results:/usr/src/cstar/results

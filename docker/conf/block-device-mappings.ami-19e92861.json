@@ -1,0 +1,19 @@
+[
+  {
+    "DeviceName": "/dev/sda1",
+    "Ebs": {
+      "DeleteOnTermination": true,
+      "SnapshotId": "snap-0df703778d00da428",
+      "VolumeSize": 300,
+      "VolumeType": "gp2"
+    }
+  },
+  {
+    "DeviceName": "/dev/sdb",
+    "VirtualName": "ephemeral0"
+  },
+  {
+    "DeviceName": "/dev/sdc",
+    "VirtualName": "ephemeral1"
+  }
+]

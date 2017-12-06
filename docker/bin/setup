@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# launch an instance within AWS
+./bin/instance-launch
+
+# install Docker, Docker Compose, and Bash Completions
+./bin/docker-setup

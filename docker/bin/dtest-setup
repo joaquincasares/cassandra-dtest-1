@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# find the aws instance IP and set the $SSH_CONN,
+# then wait for AWS instance to be up
+set -o allexport
+source ./bin/instance-wait-for
+set +o allexport
+
+${SSH_CONN} "if cd cassandra-dtest; then git pull; else git clone https://github.com/apache/cassandra-dtest.git; fi"
+
+# TESTING ONLY
+${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
+
+${SSH_CONN}
+${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests"
+${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"

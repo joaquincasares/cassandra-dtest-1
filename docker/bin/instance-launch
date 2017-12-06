@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+if [ -z "${INSTANCE_NAME}" ] \
+    || [ -z "${TICKET_ID}" ] \
+    || [ -z "${CLIENT}" ] \
+    || [ -z "${PURPOSE}" ] \
+    || [ -z "${EMAIL}" ]; then
+    echo "Please set all required environment variables within aws/secrets.env:
+        \$INSTANCE_NAME, \$EMAIL
+        
+        Your configured aws/secrets.env should match closely with aws/secrets/env.template"
+    exit 1
+fi
+
+set -ex
+
+# create keypair
+aws ec2 create-key-pair \
+    --key-name ${KEYPAIR} \
+    --query 'KeyMaterial' \
+    --output text \
+        > ${KEYPAIR_PATH}
+chmod 400 ${KEYPAIR_PATH}
+
+# create security group
+aws ec2 create-security-group \
+    --group-name ${SECURITY_GROUP_NAME} \
+    --description "Security group for ${FULL_NAME}"
+
+# grab security group id
+SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
+                        --group-names ${SECURITY_GROUP_NAME} \
+                            | jq '.SecurityGroups[0].GroupId' \
+                            | sed 's/"//g')
+
+# allow access to ssh and application ports
+for PORT in ${PORTS}
+do
+    aws ec2 authorize-security-group-ingress \
+        --group-name ${SECURITY_GROUP_NAME} \
+        --protocol tcp \
+        --port ${PORT} \
+        --cidr ${PUBLIC_IP}/24
+done
+
+# launch instance
+INSTANCE_ID=$(aws ec2 run-instances \
+                  --image-id ${AMI_ID} \
+                  --count 1 \
+                  --instance-type ${INSTANCE_TYPE} \
+                  --key-name ${KEYPAIR} \
+                  --security-groups ${SECURITY_GROUP_NAME} \
+                  --block-device-mappings \
+                    file://conf/block-device-mappings.${AMI_ID}.json \
+                      | jq '.Instances[0].InstanceId' \
+                      | sed 's/"//g')
+
+# tag instance with $INSTANCE_NAME and TLP-standard tags
+aws ec2 create-tags \
+    --resources ${INSTANCE_ID} \
+    --tags Key=Name,Value="${INSTANCE_NAME}" \
+           Key=ticket,Value="${TICKET_ID}" \
+           Key=client,Value="${CLIENT}" \
+           Key=purpose,Value="${PURPOSE}" \
+           Key=email,Value="${EMAIL}"
