@@ -19,4 +19,9 @@ ${SSH_CONN} "touch cassandra-dtest/docker/secrets.env"
 ${SSH_CONN}
 ${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests dtests"
 ${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
-${SSH_CONN} "cd cassandra-dtest; docker-compose run dtests apache trunk json_tools_test.py"
+
+cd cassandra-dtest
+for file in *.py
+do
+    echo ${SSH_CONN} "docker-compose run -d dtests apache trunk $file"
+done
