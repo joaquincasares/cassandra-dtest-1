@@ -44,6 +44,7 @@ then
     cd ${WORKDIR}/cassandra-dtest
     su cassandra -c \
         "time \
+        JAVA_HOME=/usr/lib/jvm/java-8-oracle \
         PRINT_DEBUG=true \
         nosetests -x -s -vvvv --with-flaky \
         ${SPECIFIC_DTEST}"
