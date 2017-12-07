@@ -11,11 +11,12 @@ set +o allexport
 ${SSH_CONN} "if cd cassandra-dtest; then git pull; else git clone https://github.com/apache/cassandra-dtest.git; fi"
 
 # TESTING ONLY
-${SSH_CONN} "rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
+${SSH_CONN} "sudo rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
 ${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
 
 ${SSH_CONN} "touch cassandra-dtest/docker/secrets.env"
 #${SSH_CONN} "SMALLEST=$(ls -S1 *.py | tail -n 1)"
 ${SSH_CONN}
-${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests"
+${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests dtests"
 ${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
+${SSH_CONN} "cd cassandra-dtest; docker-compose run dtests apache trunk json_tools_test.py"

@@ -47,8 +47,8 @@ then
     su cassandra -c \
         "time \
         JAVA_HOME=/usr/lib/jvm/java-8-oracle \
-        PRINT_DEBUG=true \
-        nosetests -x -s -vvvv --with-flaky \
+        nosetests -x -s -v --with-flaky \
+        --with-xunit --xunit-file=results/${SPECIFIC_DTEST}.xml \
         ${SPECIFIC_DTEST}"
     su cassandra -c \
         "time ./run_dtests.py \
