@@ -39,7 +39,8 @@ if [[ ! ${ONLY_UNIT_TESTS} ]]
 then
     # change to non-root user
     chown -R cassandra:cassandra ${WORKDIR}
-#    chown -R cassandra:cassandra /home/cassandra
+    mkdir -p /home/cassandra/.ccm
+    chown -R cassandra:cassandra /home/cassandra
 
         # run vnode and non-vnode dtests
     cd ${WORKDIR}/cassandra-dtest

@@ -15,6 +15,7 @@ ${SSH_CONN} "rm -rf cassandra-dtest; git clone https://github.com/joaquincasares
 ${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
 
 ${SSH_CONN} "touch cassandra-dtest/docker/secrets.env"
+#${SSH_CONN} "SMALLEST=$(ls -S1 *.py | tail -n 1)"
 ${SSH_CONN}
 ${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests"
 ${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
