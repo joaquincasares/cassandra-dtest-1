@@ -35,7 +35,7 @@ services:
     build: .
     volumes:
       - .:/usr/src/cstar/cassandra-dtest
-      - .m2:/home/cassandra/.m2
+      - .m2:/root/.m2
       - ./results:/usr/src/cstar/results
 
   unittests:
@@ -44,5 +44,5 @@ services:
       - ONLY_UNIT_TESTS=true
     volumes:
       - .:/usr/src/cstar/cassandra-dtest
-      - .m2:/home/cassandra/.m2
+      - .m2:/root/.m2
       - ./results:/usr/src/cstar/results
