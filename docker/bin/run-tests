@@ -7,3 +7,12 @@ set -ex
 
 # install Docker, Docker Compose, and Bash Completions
 ./bin/docker-setup
+
+# setup tests
+./bin/dtest-setup
+
+# run tests
+./bin/dtest-run
+
+# destroy ec2 machine
+./bin/instance-destroy

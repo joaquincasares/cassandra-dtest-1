@@ -15,3 +15,4 @@ doxygen/doxypy-0.4.2/
 .m2
 docker/keys
 docker/secrets.env
+results/

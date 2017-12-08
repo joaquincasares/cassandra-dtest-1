@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -ex
+
+# find the aws instance IP and set the $SSH_CONN,
+# then wait for AWS instance to be up
+set -o allexport
+source ./bin/instance-wait-for
+set +o allexport
+
+# build the docker images
+${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests dtests"
+
+# run the Apache Cassandra unit tests
+${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
+
+# spin up a container per dtest file
+for file in $(${SSH_CONN} "cd cassandra-dtest; ls *.py")
+do
+    ${SSH_CONN} "cd cassandra-dtest; docker-compose run -d dtests apache trunk $file"
+done
+
+# stay within the local aws-container checking to see when all containers have
+# finished running their tests
+while true
+do
+    if [[ $(${SSH_CONN} "docker ps | tail -n +2") ]]; then
+        date
+        echo "Waiting for testing to complete..."
+        sleep 10
+    else
+        echo "Testing complete."
+        break
+    fi
+done
+
+# copy all results from the ec2 instance to this local aws-container
+# results/ is also mapped from the host machine for easy access and longevity
+rsync -avzhe \
+    "ssh -i ${KEYPAIR_PATH} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
+    --progress \
+    ${AMI_USER}@${INSTANCE_IP}:cassandra-dtest/results/ results/
+
+echo "Results collected in ./results/"

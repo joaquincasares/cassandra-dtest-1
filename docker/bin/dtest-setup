@@ -8,22 +8,12 @@ set -o allexport
 source ./bin/instance-wait-for
 set +o allexport
 
+# pull the latest copy of cassandra-dtest
 ${SSH_CONN} "if cd cassandra-dtest; then git pull; else git clone https://github.com/apache/cassandra-dtest.git; fi"
 
-# TESTING ONLY
-#${SSH_CONN} "sudo rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
-#${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
+# TESTING ONLY: pull a fork and/or specific branch
+${SSH_CONN} "sudo rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
+${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
 
+# touch the unused secrets.env so docker-compose can be happy
 ${SSH_CONN} "touch cassandra-dtest/docker/secrets.env"
-${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests dtests"
-${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
-
-cd cassandra-dtest
-for file in *.py
-do
-    ${SSH_CONN} "docker-compose run -d dtests apache trunk $file"
-done
-
-${SSH_CONN} "ctop; echo 'Type exit to leave the EC2 instance and retrieve all the results locally into ./results.'; bash"
-
-rsync -avzhe ssh --progress -i ${KEYPAIR_PATH} ${AMI_USER}@${INSTANCE_IP}:cassandra-dtest/results/ results/

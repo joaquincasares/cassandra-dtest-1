@@ -1,19 +1,9 @@
 version: '2.1'
 
 services:
-  aws-setup:
-    build: docker
-    command: ./bin/launcher ./bin/setup
-    env_file:
-      - docker/ec2.env
-      - docker/secrets.env
-    volumes:
-      - ./docker/bin:/usr/src/app/bin
-      - ./docker/keys:/usr/src/app/keys
-
   aws-test:
     build: docker
-    command: ./bin/launcher ./bin/dtest-setup
+    command: ./bin/launcher ./bin/run-tests
     env_file:
       - docker/ec2.env
       - docker/secrets.env
@@ -21,16 +11,6 @@ services:
       - ./docker/bin:/usr/src/app/bin
       - ./docker/keys:/usr/src/app/keys
       - ./results:/usr/src/app/results
-
-  aws-destroy:
-    build: docker
-    command: ./bin/launcher ./bin/instance-destroy
-    env_file:
-      - docker/ec2.env
-      - docker/secrets.env
-    volumes:
-      - ./docker/bin:/usr/src/app/bin
-      - ./docker/keys:/usr/src/app/keys
 
   dtests:
     build: .
