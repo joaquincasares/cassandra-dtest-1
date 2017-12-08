@@ -24,4 +24,6 @@ do
     ${SSH_CONN} "docker-compose run -d dtests apache trunk $file"
 done
 
+${SSH_CONN} "ctop; echo 'Type exit to leave the EC2 instance and retrieve all the results locally into ./results.'; bash"
+
 rsync -avzhe ssh --progress -i ${KEYPAIR_PATH} ${AMI_USER}@${INSTANCE_IP}:cassandra-dtest/results/ results/
