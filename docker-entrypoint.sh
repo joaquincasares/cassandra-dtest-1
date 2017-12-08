@@ -45,7 +45,7 @@ then
         # run vnode and non-vnode dtests
     cd ${WORKDIR}/cassandra-dtest
     su cassandra -c \
-        "export JAVA_HOME=/usr/lib/jvm/java-8-oracle \
+        "export JAVA_HOME=/usr/lib/jvm/java-8-oracle; \
         time \
         JAVA_HOME=/usr/lib/jvm/java-8-oracle \
         nosetests -x -s -v --with-flaky \

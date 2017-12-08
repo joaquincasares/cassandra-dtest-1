@@ -77,6 +77,7 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install -y \
+        rsync \
         ssh
 
 # https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/user
