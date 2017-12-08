@@ -107,7 +107,7 @@ will often need to modify them in some fashion at some later point:
 ## Setup and run dtests
 * Install current python dependencies:
 
-        sudo pip install decorator
+        sudo pip install decorator parse enum pycassa
 
 * Set CASSANDRA_DIR environment variable.
   Set the variable in your ~/.bashrc file once so that you don't have to keep setting it everytime you run dtests:

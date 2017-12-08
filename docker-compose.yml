@@ -20,6 +20,7 @@ services:
     volumes:
       - ./docker/bin:/usr/src/app/bin
       - ./docker/keys:/usr/src/app/keys
+      - ./results:/usr/src/app/results
 
   aws-destroy:
     build: docker

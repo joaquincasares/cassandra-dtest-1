@@ -69,8 +69,11 @@ RUN pip install --upgrade \
     cql \
     decorator \
     docopt \
+    enum \
     flaky \
-    pip
+    parse \
+    pip \
+    pycassa
 
 # install Python test framework
 RUN apt-get update \

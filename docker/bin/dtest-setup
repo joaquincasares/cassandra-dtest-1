@@ -11,17 +11,17 @@ set +o allexport
 ${SSH_CONN} "if cd cassandra-dtest; then git pull; else git clone https://github.com/apache/cassandra-dtest.git; fi"
 
 # TESTING ONLY
-${SSH_CONN} "sudo rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
-${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
+#${SSH_CONN} "sudo rm -rf cassandra-dtest; git clone https://github.com/joaquincasares/cassandra-dtest-1.git cassandra-dtest"
+#${SSH_CONN} "cd cassandra-dtest; git checkout parallel-docker-dtests"
 
 ${SSH_CONN} "touch cassandra-dtest/docker/secrets.env"
-#${SSH_CONN} "SMALLEST=$(ls -S1 *.py | tail -n 1)"
-${SSH_CONN}
 ${SSH_CONN} "cd cassandra-dtest; docker-compose build unittests dtests"
 ${SSH_CONN} "cd cassandra-dtest; docker-compose run unittests"
 
 cd cassandra-dtest
 for file in *.py
 do
-    echo ${SSH_CONN} "docker-compose run -d dtests apache trunk $file"
+    ${SSH_CONN} "docker-compose run -d dtests apache trunk $file"
 done
+
+rsync -avzhe ssh --progress -i ${KEYPAIR_PATH} ${AMI_USER}@${INSTANCE_IP}:cassandra-dtest/results/ results/
